@@ -23,21 +23,21 @@ It is anticipated that the outputs of the behaviour models will be of use in spe
    :maxdepth: 2
    :caption: General models:
 
-   ScheduleModel
+   ScheduleModel_page
 
 .. toctree::
    :maxdepth: 2
    :caption: Thermostat models:
    
-   SAP2012ThermostatModel
+   SAP2012ThermostatModel_page
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Abstract models:
 
-   Model
-   DeterministicModel
+   Model_page
+   DeterministicModel_page
    
 
 Indices and tables

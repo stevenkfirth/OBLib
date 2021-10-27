@@ -1,18 +1,40 @@
 # -*- coding: utf-8 -*-
 
-from OBLib import DeterministicModel
+import unittest
+
+from OBLib import Model, DeterministicModel
+from OBLib import ScheduleModel
+from OBLib import SAP2012ThermostatModel
+
 import pandas as pd
 
-m=DeterministicModel(all_days=[5,21,21,5])
-#m.inputs.all_days=[1]
-output=m.run(start=pd.Timestamp(2021,1,1,0,0),
-             freq="H",
-             periods=8760)
-
-print(m)
-print(output.df)
-
-output.df[:48].plot()
 
 
 
+
+
+class Test_ScheduleModel(unittest.TestCase):
+    ""
+    
+    def test_run_all_days(self):
+        ""
+        m=ScheduleModel()
+        m.inputs.set_timestamps(start=(2021,1,1),freq='H',periods=24*7)
+        
+        # constant 0
+        m.inputs.all_days=[0]
+        result=m.run()
+        self.assertEqual(result.data['result'],
+                         [0]*24*7)
+        
+        
+        
+    
+            
+        
+        
+if __name__=='__main__':
+    
+    
+    
+    unittest.main()
