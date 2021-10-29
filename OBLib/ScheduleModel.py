@@ -35,47 +35,85 @@ class ScheduleModel(DeterministicModel):
         
         """
         
-        outputs=ScheduleOutputs()
-        outputs._timestamps=self._inputs.timestamps
+        # all days data -- default is [np.nan]
+        data=self._get_schedule_values(self._inputs._all_days,
+                                       self._inputs._timestamps)
         
-        # all days
-        if not self._inputs.all_days is None:
-            
-            data=self._get_profile_values(self._inputs.all_days,
-                                          outputs.timestamps)
-            
-            outputs._data['result']=data
-        
-        # weekends
-        
-        
+        # create series with all_days data and timestamps
+        s=pd.Series(data=data,
+                    index=self._inputs._timestamps)
         
         # weekdays
+        if not self._inputs._weekdays is None:
+            mask=s.index.weekday<5
+            timestamps=s.index[mask]
+            data=self._get_schedule_values(self._inputs._weekdays,
+                                           timestamps)
+            s[mask]=data
         
+        # weekends
+        if not self._inputs._weekends is None:
+            mask=s.index.weekday>4
+            timestamps=s.index[mask]
+            data=self._get_schedule_values(self._inputs._weekends,
+                                           timestamps)
+            s[mask]=data
+            
+        
+        # create Outputs object
+        outputs=ScheduleOutputs()
+        outputs._timestamps=s.index
+        
+        outputs._data['result']=s.tolist()
         
         return outputs
            
 
-    def _get_profile_values(self,
-                            schedule_values,
-                            timestamps):
+    def _get_schedule_values(self,
+                             day_profile,
+                             timestamps):
+        """This function returns a list of schedule values for a given
+        set of timestamps.
+        
+        :param day_profile: A day profile as defined in `ScheduleInputs`
+        :type day_profile: list
+        :param timestamps: A set of timestamps
+        :type timestamps: pandas.DatetimeIndex
+        
+        :rtype: list
+        
         """
-        """
-        interval=int(24*60*60/len(schedule_values)) # in seconds
+        # calculates the interval of the day profile
+        # - in seconds
+        # e.g. a day_profile of [21] has an interval of 86400
+        # e.g. a day_profile of [5, 21] has an interval of 43200
+        interval=int(24*60*60/len(day_profile)) 
         #print(interval)
-        schedule_times=list(range(interval,86400+interval,interval))
-        #print(schedule_times)
-        #print(schedule_values)
+        
+        # calculates the times when the day profile values occur
+        # - in seconds past midnight
+        # e.g. a day_profile of [21] has a profile_times of [86400]
+        # e.g. a day_profile of [5, 21] has a profile_times of [43200,86400]
+        profile_times=list(range(interval,86400+interval,interval))
+        #print(profile_times)
     
+        # converts the timestamps to a list of times after midnight
+        # - in seconds past midnight
         x=((timestamps-timestamps.normalize())
            /pd.Timedelta(seconds=1)).astype(int).tolist() 
-            # timestamps in seconds after midnight
         #print(x)
     
-        y=np.searchsorted(schedule_times, x) # indices for schedule_values list
+        # works out where the timestamps values align with the profile_times
+        # - this gives a list of indices
+        # - the list has the same length as timestamps
+        # - each value in the list gives the index to be used for that
+        #   timestamp to access the schedule value in the day_profile list.
+        y=np.searchsorted(profile_times, x, side='right') 
         #print(y)
         
-        values=[schedule_values[x] for x in y]
+        # creates a list of schedule values
+        # - the list has the same length as timestamps
+        values=[day_profile[x] for x in y]
         #print(values)
         
         return values
