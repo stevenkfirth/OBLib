@@ -19,6 +19,18 @@ class ScheduleModel(DeterministicModel):
     This is similar to the approach taken to specify schedules in many
     building simulation tools.
     
+    .. rubric:: Code Example
+    
+    .. code-block:: python
+           
+       >>> from OBLib import ScheduleModel
+       >>> model=ScheduleModel()
+       >>> model.inputs.set_timestamps(start=(2021,1,1),
+       >>>                             freq='H',
+       >>>                             periods=24*7)
+       >>> model.inputs.all_days=[21]
+       >>> result=model.run()
+    
     """
     
     def __init__(self):
