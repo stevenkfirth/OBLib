@@ -6,6 +6,8 @@
 Welcome to OBLib's documentation!
 =================================
 
+--- UNDER DEVELOPMENT ---
+
 OBLib is a Python package of occupant behaviour models for IEA EBC Annex 79.
 
 The package contains a series of models for predicitng the behaviour of occupants in buildings. 
